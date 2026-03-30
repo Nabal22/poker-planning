@@ -125,6 +125,9 @@ export function setFinalScore(roomId: string, score: string): Room | null {
 export function nextTicket(roomId: string): Room | null {
   const room = rooms.get(roomId);
   if (!room) return null;
+  if (room.finalScore && room.tickets[room.currentTicketIdx]) {
+    room.tickets[room.currentTicketIdx].estimatedPoints = room.finalScore;
+  }
   if (room.currentTicketIdx < room.tickets.length - 1) {
     room.currentTicketIdx++;
   }
@@ -142,6 +145,9 @@ export function selectTicket(roomId: string, ticketIdx: number): Room | null {
   const room = rooms.get(roomId);
   if (!room) return null;
   if (ticketIdx < 0 || ticketIdx >= room.tickets.length) return null;
+  if (room.finalScore && room.tickets[room.currentTicketIdx]) {
+    room.tickets[room.currentTicketIdx].estimatedPoints = room.finalScore;
+  }
   room.currentTicketIdx = ticketIdx;
   room.players.forEach((p) => {
     p.vote = null;

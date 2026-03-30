@@ -300,7 +300,7 @@ function RoomViewInner({ roomId, playerName, savedPlayerId, onChangeTheme }: Pro
               onRefresh={jiraEnabled ? handleRefreshJira : undefined}
               refreshing={refreshingJira}
             />
-            <CoinFlip />
+            <CoinFlip roomId={roomId} playerName={playerName} />
           </div>
         </div>
       </div>

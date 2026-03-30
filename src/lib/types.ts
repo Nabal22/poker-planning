@@ -53,6 +53,7 @@ export type ClientToServerEvents = {
   "remove-ticket": (data: { roomId: string; ticketIdx: number }) => void;
   "kick-player": (data: { roomId: string; playerId: string }) => void;
   "throw-paper": (data: { roomId: string; fromId: string; toId: string }) => void;
+  "coin-flip": (data: { roomId: string; result: "pile" | "face"; playerName: string }) => void;
 };
 
 export type ServerToClientEvents = {
@@ -65,4 +66,5 @@ export type ServerToClientEvents = {
   kicked: () => void;
   error: (data: { message: string }) => void;
   "paper-thrown": (data: { fromId: string; toId: string }) => void;
+  "coin-flipped": (data: { result: "pile" | "face"; playerName: string }) => void;
 };

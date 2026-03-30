@@ -35,7 +35,7 @@ export function TicketPanel({ tickets, currentIdx, isHost, onSelect, onAddTicket
     setTimeout(() => inputRef.current?.focus(), 0);
   };
 
-  const done = tickets.filter((t) => t.estimatedPoints).length;
+  const done = tickets.filter((t) => t.estimatedPoints || t.currentPoints != null).length;
 
   return (
     <div className={`rounded-2xl overflow-hidden ${theme.panel}`}>
@@ -84,7 +84,15 @@ export function TicketPanel({ tickets, currentIdx, isHost, onSelect, onAddTicket
       {/* List */}
       {tickets.length > 0 && (
         <div className="max-h-56 overflow-y-auto">
-          {tickets.map((ticket, idx) => {
+          {tickets
+            .map((ticket, idx) => ({ ticket, idx }))
+            .sort((a, b) => {
+              const aDone = !!(a.ticket.estimatedPoints || a.ticket.currentPoints != null);
+              const bDone = !!(b.ticket.estimatedPoints || b.ticket.currentPoints != null);
+              if (aDone !== bDone) return aDone ? 1 : -1;
+              return a.idx - b.idx;
+            })
+            .map(({ ticket, idx }) => {
             const isCurrent = idx === currentIdx;
             return (
               <div
@@ -129,6 +137,7 @@ export function TicketPanel({ tickets, currentIdx, isHost, onSelect, onAddTicket
             );
           })}
         </div>
+
       )}
 
       {/* Empty state */}
