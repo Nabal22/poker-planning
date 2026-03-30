@@ -34,7 +34,9 @@ export function initSocketServer(httpServer: HttpServer) {
       }
       socket.join(roomId);
       socket.emit("room-state", result.room);
-      socket.to(roomId).emit("player-joined", result.player);
+      if (!result.isReconnect) {
+        socket.to(roomId).emit("player-joined", result.player);
+      }
     });
 
     socket.on("vote", ({ roomId, playerId: pid, value }) => {

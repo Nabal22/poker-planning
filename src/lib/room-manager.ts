@@ -39,7 +39,7 @@ export function getRoom(roomId: string): Room | undefined {
   return rooms.get(roomId);
 }
 
-export function joinRoom(roomId: string, playerId: string, playerName: string): { room: Room; player: Player } | null {
+export function joinRoom(roomId: string, playerId: string, playerName: string): { room: Room; player: Player; isReconnect: boolean } | null {
   const room = rooms.get(roomId);
   if (!room) return null;
   if (room.players.length >= 20) return null;
@@ -48,7 +48,7 @@ export function joinRoom(roomId: string, playerId: string, playerName: string): 
   if (existing) {
     existing.connected = true;
     room.lastActivityAt = Date.now();
-    return { room, player: existing };
+    return { room, player: existing, isReconnect: true };
   }
 
   const player: Player = {
@@ -60,7 +60,7 @@ export function joinRoom(roomId: string, playerId: string, playerName: string): 
   };
   room.players.push(player);
   room.lastActivityAt = Date.now();
-  return { room, player };
+  return { room, player, isReconnect: false };
 }
 
 export function playerDisconnect(playerId: string): Room | null {

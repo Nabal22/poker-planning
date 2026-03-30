@@ -8,9 +8,11 @@ interface Props {
   currentIdx: number;
   isHost: boolean;
   onSelect: (idx: number) => void;
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }
 
-export function TicketPanel({ tickets, currentIdx, isHost, onSelect }: Props) {
+export function TicketPanel({ tickets, currentIdx, isHost, onSelect, onRefresh, refreshing }: Props) {
   const theme = useTheme();
 
   if (!tickets.length) {
@@ -29,9 +31,26 @@ export function TicketPanel({ tickets, currentIdx, isHost, onSelect }: Props) {
       {/* Header */}
       <div className="px-4 py-3 border-b border-current/10 flex items-center justify-between">
         <span className="text-sm font-medium">Tickets</span>
-        <span className="text-xs opacity-50">
-          {done > 0 ? `${done}/${tickets.length} estimés` : `${tickets.length} tickets`}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs opacity-50">
+            {done > 0 ? `${done}/${tickets.length} estimés` : `${tickets.length} tickets`}
+          </span>
+          {isHost && onRefresh && (
+            <button
+              onClick={onRefresh}
+              disabled={refreshing}
+              title="Actualiser les tickets"
+              className="opacity-40 hover:opacity-80 transition-opacity disabled:cursor-wait"
+            >
+              <svg
+                className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`}
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Progress bar */}

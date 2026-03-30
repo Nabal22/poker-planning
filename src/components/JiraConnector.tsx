@@ -10,7 +10,7 @@ interface Sprint {
 }
 
 interface Props {
-  onTicketsLoaded: (tickets: JiraTicket[]) => void;
+  onTicketsLoaded: (tickets: JiraTicket[], jql: string) => void;
 }
 
 export function JiraConnector({ onTicketsLoaded }: Props) {
@@ -40,7 +40,7 @@ export function JiraConnector({ onTicketsLoaded }: Props) {
       const data = await res.json();
       if (!Array.isArray(data)) throw new Error(data.error ?? "Erreur inconnue");
       if (data.length === 0) throw new Error("Aucun ticket trouvé dans ce sprint");
-      onTicketsLoaded(data);
+      onTicketsLoaded(data, selectedSprint.jql);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur");
     } finally {

@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import type { Room } from "@/lib/types";
 import { SCALES } from "@/lib/types";
 import { useTheme } from "./ThemeContext";
-
 interface Props {
   room: Room;
   isHost: boolean;
@@ -22,7 +21,6 @@ function toNumber(v: string | null | undefined): number | null {
 
 export function ResultsPanel({ room, isHost, onSetFinalScore, onResetVotes, onNextTicket }: Props) {
   const theme = useTheme();
-
   const votes = room.players
     .filter((p) => p.hasVoted && p.vote != null)
     .map((p) => p.vote as string);
@@ -49,11 +47,11 @@ export function ResultsPanel({ room, isHost, onSetFinalScore, onResetVotes, onNe
   const isConsensus = votes.length > 1 && new Set(votes).size === 1;
   const scaleValues = SCALES[room.scale];
 
-  return (
+return (
     <div className={`rounded-2xl p-5 space-y-4 ${theme.panel}`}>
       {/* Title */}
       <div className="flex items-center gap-2">
-        <h3 className="font-semibold text-white">Résultats</h3>
+        <h3 className="font-semibold">Résultats</h3>
         {isConsensus && <span className="text-xl animate-bounce">🎉</span>}
       </div>
 
@@ -70,13 +68,13 @@ export function ResultsPanel({ room, isHost, onSetFinalScore, onResetVotes, onNe
           return (
             <div key={v} className="flex items-center gap-3">
               <span className="w-7 text-right text-sm font-bold shrink-0">{v}</span>
-              <div className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
+              <div className={`flex-1 h-2 rounded-full overflow-hidden ${theme.panelInner}`}>
                 <div
                   className={`h-2 rounded-full transition-all duration-500 ${theme.distribution}`}
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <span className="text-xs text-gray-500 w-6 shrink-0">{count}×</span>
+              <span className="text-xs opacity-50 w-6 shrink-0">{count}×</span>
             </div>
           );
         })}
@@ -92,8 +90,8 @@ export function ResultsPanel({ room, isHost, onSetFinalScore, onResetVotes, onNe
             { label: "Max", value: String(stats.max) },
           ].map(({ label, value }) => (
             <div key={label} className="text-center">
-              <div className="text-xs text-gray-500">{label}</div>
-              <div className="text-sm font-bold text-white">{value}</div>
+              <div className="text-xs opacity-50">{label}</div>
+              <div className="text-sm font-bold">{value}</div>
             </div>
           ))}
         </div>
@@ -102,7 +100,7 @@ export function ResultsPanel({ room, isHost, onSetFinalScore, onResetVotes, onNe
       {/* Score final */}
       {isHost && !room.finalScore && (
         <div className="space-y-2">
-          <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Choisir le score final</p>
+          <p className="text-xs opacity-50 font-medium uppercase tracking-wide">Choisir le score final</p>
           <div className="flex flex-wrap gap-1.5">
             {scaleValues.map((v) => (
               <button
@@ -119,8 +117,8 @@ export function ResultsPanel({ room, isHost, onSetFinalScore, onResetVotes, onNe
 
       {room.finalScore && (
         <div className={`rounded-xl p-3 text-center ${theme.finalScore}`}>
-          <span className="text-gray-400 text-sm">Score final : </span>
-          <span className="text-white font-bold text-xl">{room.finalScore}</span>
+          <span className="text-sm opacity-60">Score final : </span>
+          <span className="font-bold text-xl">{room.finalScore}</span>
         </div>
       )}
 

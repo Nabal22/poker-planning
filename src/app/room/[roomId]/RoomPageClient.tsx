@@ -18,7 +18,7 @@ export default function RoomPageClient({ paramsPromise }: Props) {
   useEffect(() => {
     const nameFromQuery = searchParams.get("name");
     const nameFromStorage = localStorage.getItem("planning-poker-player-name");
-    const pidFromStorage = sessionStorage.getItem("planning-poker-player-id");
+    const pidFromStorage = localStorage.getItem(`planning-poker-player-id:${roomId}`);
 
     const name = nameFromQuery || nameFromStorage;
     if (!name) {

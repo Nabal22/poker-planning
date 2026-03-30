@@ -14,6 +14,7 @@ import { ToastContainer } from "./Toast";
 import { ThemeProvider, useTheme } from "./ThemeContext";
 import { ThemeSelector } from "./ThemeSelector";
 import { KonamiEasterEgg } from "./KonamiEasterEgg";
+import { CoinFlip } from "./CoinFlip";
 import { THEMES, type ThemeId } from "@/lib/themes";
 import type { JiraTicket } from "@/lib/types";
 
@@ -29,7 +30,9 @@ function RoomViewInner({ roomId, playerName, savedPlayerId, onChangeTheme }: Pro
   const socketRef = useRef(connectSocket());
   const [myVote, setMyVote] = useState<string | null>(null);
   const [jiraEnabled, setJiraEnabled] = useState(false);
+  const [jiraJql, setJiraJql] = useState<string | null>(null);
   const [sendingToJira, setSendingToJira] = useState(false);
+  const [refreshingJira, setRefreshingJira] = useState(false);
   const [jiraModalOpen, setJiraModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [paperBalls, setPaperBalls] = useState<PaperBallAnim[]>([]);
@@ -44,7 +47,8 @@ function RoomViewInner({ roomId, playerName, savedPlayerId, onChangeTheme }: Pro
     const joinRoom = () => {
       const pid = savedPlayerId || socket.id || "";
       setPlayerId(pid);
-      socket.emit("join-room", { roomId, playerName, playerId: savedPlayerId });
+      localStorage.setItem(`planning-poker-player-id:${roomId}`, pid);
+      socket.emit("join-room", { roomId, playerName, playerId: pid });
     };
 
     socket.on("room-state", (r) => setRoom(r));
@@ -125,11 +129,28 @@ function RoomViewInner({ roomId, playerName, savedPlayerId, onChangeTheme }: Pro
     onChangeTheme(t);
   };
 
-  const handleTicketsLoaded = (tickets: JiraTicket[]) => {
+  const handleTicketsLoaded = (tickets: JiraTicket[], jql: string) => {
     socket.emit("load-tickets", { roomId, tickets });
     setJiraEnabled(true);
+    setJiraJql(jql);
     setJiraModalOpen(false);
     addToast(`${tickets.length} tickets chargés`, "success");
+  };
+
+  const handleRefreshJira = async () => {
+    if (!jiraJql || refreshingJira) return;
+    setRefreshingJira(true);
+    try {
+      const res = await fetch(`/api/jira/issues?jql=${encodeURIComponent(jiraJql)}`);
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error(data.error ?? "Erreur");
+      socket.emit("load-tickets", { roomId, tickets: data });
+      addToast(`${data.length} tickets actualisés`, "success");
+    } catch (e) {
+      addToast(e instanceof Error ? e.message : "Erreur Jira", "error");
+    } finally {
+      setRefreshingJira(false);
+    }
   };
 
   const handleSendToJira = async (score: string) => {
@@ -286,7 +307,10 @@ function RoomViewInner({ roomId, playerName, savedPlayerId, onChangeTheme }: Pro
               currentIdx={room.currentTicketIdx}
               isHost={isHost}
               onSelect={handleSelectTicket}
+              onRefresh={jiraEnabled ? handleRefreshJira : undefined}
+              refreshing={refreshingJira}
             />
+            <CoinFlip />
           </div>
         </div>
       </div>
