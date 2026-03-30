@@ -1,15 +1,19 @@
 "use client";
 
 import { useMemo } from "react";
-import type { Room } from "@/lib/types";
+import type { Room, JiraTicket } from "@/lib/types";
 import { SCALES } from "@/lib/types";
 import { useTheme } from "./ThemeContext";
+
 interface Props {
   room: Room;
   isHost: boolean;
   onSetFinalScore: (score: string) => void;
   onResetVotes: () => void;
   onNextTicket: () => void;
+  currentTicket?: JiraTicket | null;
+  onSendToJira?: (score: string) => Promise<void>;
+  sendingToJira?: boolean;
 }
 
 function toNumber(v: string | null | undefined): number | null {
@@ -19,7 +23,7 @@ function toNumber(v: string | null | undefined): number | null {
   return parseFloat(v);
 }
 
-export function ResultsPanel({ room, isHost, onSetFinalScore, onResetVotes, onNextTicket }: Props) {
+export function ResultsPanel({ room, isHost, onSetFinalScore, onResetVotes, onNextTicket, currentTicket, onSendToJira, sendingToJira }: Props) {
   const theme = useTheme();
   const votes = room.players
     .filter((p) => p.hasVoted && p.vote != null)
@@ -116,9 +120,37 @@ return (
       )}
 
       {room.finalScore && (
-        <div className={`rounded-xl p-3 text-center ${theme.finalScore}`}>
-          <span className="text-sm opacity-60">Score final : </span>
-          <span className="font-bold text-xl">{room.finalScore}</span>
+        <div className={`rounded-xl p-3 ${onSendToJira ? "flex items-center justify-between gap-3" : "text-center"} ${theme.finalScore}`}>
+          <div className="text-center flex-1">
+            <span className="text-sm opacity-60">Score final : </span>
+            <span className="font-bold text-xl">{room.finalScore}</span>
+          </div>
+          {onSendToJira && currentTicket && (
+            <button
+              onClick={() => !sendingToJira && onSendToJira(room.finalScore!)}
+              disabled={sendingToJira || !!currentTicket.estimatedPoints}
+              className={`shrink-0 flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${theme.accent} ${sendingToJira || currentTicket.estimatedPoints ? "opacity-60 cursor-default" : ""}`}
+            >
+              {currentTicket.estimatedPoints ? (
+                <>
+                  <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  Envoyé
+                </>
+              ) : sendingToJira ? (
+                <>
+                  <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  Envoi…
+                </>
+              ) : (
+                <>
+                  <span className="font-bold text-[11px] opacity-80">J</span>
+                  → Jira
+                </>
+              )}
+            </button>
+          )}
         </div>
       )}
 

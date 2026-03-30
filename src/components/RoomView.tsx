@@ -248,9 +248,6 @@ function RoomViewInner({ roomId, playerName, savedPlayerId, onChangeTheme }: Pro
                 ticket={currentTicket}
                 ticketIdx={room.currentTicketIdx}
                 totalTickets={room.tickets.length}
-                finalScore={room.finalScore}
-                onSendToJira={jiraEnabled && !currentTicket?.key.startsWith("#") ? handleSendToJira : undefined}
-                sendingToJira={sendingToJira}
               />
             )}
 
@@ -270,6 +267,9 @@ function RoomViewInner({ roomId, playerName, savedPlayerId, onChangeTheme }: Pro
                 onSetFinalScore={handleSetFinalScore}
                 onResetVotes={handleReset}
                 onNextTicket={handleNextTicket}
+                currentTicket={currentTicket}
+                onSendToJira={jiraEnabled && currentTicket && !currentTicket.key.startsWith("#") ? handleSendToJira : undefined}
+                sendingToJira={sendingToJira}
               />
             )}
 
