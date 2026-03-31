@@ -32,15 +32,9 @@ export function ResultsPanel({ room, isHost, onSetFinalScore, onResetVotes, onNe
 
   const numericVotes = votes.map(toNumber).filter((n): n is number => n !== null);
 
-  const stats = useMemo(() => {
+  const avg = useMemo(() => {
     if (!numericVotes.length) return null;
-    const sorted = [...numericVotes].sort((a, b) => a - b);
-    const avg = numericVotes.reduce((a, b) => a + b, 0) / numericVotes.length;
-    const median = sorted.length % 2 === 0
-      ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
-      : sorted[Math.floor(sorted.length / 2)];
-    const stddev = Math.sqrt(numericVotes.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / numericVotes.length);
-    return { avg: avg.toFixed(1), median: median.toFixed(1), min: sorted[0], max: sorted[sorted.length - 1], stddev: stddev.toFixed(1) };
+    return (numericVotes.reduce((a, b) => a + b, 0) / numericVotes.length).toFixed(1);
   }, [numericVotes]);
 
   const distribution = useMemo(() => {
@@ -51,62 +45,50 @@ export function ResultsPanel({ room, isHost, onSetFinalScore, onResetVotes, onNe
 
   const isConsensus = votes.length > 1 && new Set(votes).size === 1;
   const scaleValues = SCALES[room.scale];
+  const maxCount = distribution.length ? distribution[0][1] : 1;
 
-return (
+  return (
     <div className={`rounded-2xl p-5 space-y-4 ${theme.panel}`}>
-      {/* Title */}
-      <div className="flex items-center gap-2">
-        <h3 className="font-semibold">Résultats</h3>
-        {isConsensus && <span className="text-xl animate-bounce">🎉</span>}
-      </div>
-
-      {isConsensus && (
-        <div className={`rounded-xl p-3 text-center ${theme.consensus}`}>
-          <span className="font-semibold">Consensus : {votes[0]}</span>
+      {/* Consensus banner */}
+      {isConsensus ? (
+        <div className={`rounded-xl p-4 text-center ${theme.consensus}`}>
+          <div className="text-sm opacity-70">Consensus</div>
+          <div className="text-3xl font-black">{votes[0]}</div>
         </div>
+      ) : (
+        <>
+          {/* Distribution — bar chart */}
+          <div className="flex items-end justify-center gap-2">
+            {distribution.map(([v, count]) => {
+              const barHeight = Math.max(12, Math.round((count / maxCount) * 64));
+              return (
+                <div key={v} className="flex flex-col items-center gap-1 flex-1 max-w-[3rem]">
+                  <span className="text-xs font-medium opacity-60">{count}×</span>
+                  <div
+                    className={`w-full rounded-t-lg ${theme.distribution}`}
+                    style={{ height: barHeight }}
+                  />
+                  <span className="text-xs font-bold">{v}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Average */}
+          {avg && (
+            <div className="text-center">
+              <span className="text-sm opacity-50">Moyenne </span>
+              <span className="text-lg font-bold">{avg}</span>
+            </div>
+          )}
+        </>
       )}
 
-      {/* Distribution */}
-      <div className="space-y-2">
-        {distribution.map(([v, count]) => {
-          const pct = Math.round((count / votes.length) * 100);
-          return (
-            <div key={v} className="flex items-center gap-3">
-              <span className="w-7 text-right text-sm font-bold shrink-0">{v}</span>
-              <div className={`flex-1 h-2 rounded-full overflow-hidden ${theme.panelInner}`}>
-                <div
-                  className={`h-2 rounded-full transition-all duration-500 ${theme.distribution}`}
-                  style={{ width: `${pct}%` }}
-                />
-              </div>
-              <span className="text-xs opacity-50 w-6 shrink-0">{count}×</span>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Stats */}
-      {stats && (
-        <div className={`grid grid-cols-4 gap-2 rounded-xl p-3 ${theme.panelInner}`}>
-          {[
-            { label: "Moy", value: stats.avg },
-            { label: "Méd", value: stats.median },
-            { label: "Min", value: String(stats.min) },
-            { label: "Max", value: String(stats.max) },
-          ].map(({ label, value }) => (
-            <div key={label} className="text-center">
-              <div className="text-xs opacity-50">{label}</div>
-              <div className="text-sm font-bold">{value}</div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Score final */}
+      {/* Score final — host picks */}
       {isHost && !room.finalScore && (
         <div className="space-y-2">
-          <p className="text-xs opacity-50 font-medium uppercase tracking-wide">Choisir le score final</p>
-          <div className="flex flex-wrap gap-1.5">
+          <p className="text-xs opacity-50 font-medium uppercase tracking-wide text-center">Score final</p>
+          <div className="flex flex-wrap gap-1.5 justify-center">
             {scaleValues.map((v) => (
               <button
                 key={v}
@@ -121,43 +103,43 @@ return (
       )}
 
       {room.finalScore && (
-        <div className={`rounded-xl p-3 ${onSendToJira ? "flex items-center justify-between gap-3" : "text-center"} ${theme.finalScore}`}>
-          <div className="text-center flex-1">
-            <span className="text-sm opacity-60">Score final : </span>
-            <span className="font-bold text-xl">{room.finalScore}</span>
-          </div>
+        <div className={`rounded-xl p-3 text-center ${theme.finalScore}`}>
+          <span className="text-sm opacity-60">Score final </span>
+          <span className="font-bold text-xl">{room.finalScore}</span>
           {onSendToJira && currentTicket && (
-            <button
-              onClick={() => !sendingToJira && onSendToJira(room.finalScore!)}
-              disabled={sendingToJira || !!currentTicket.estimatedPoints}
-              className={`shrink-0 flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${theme.accent} ${sendingToJira || currentTicket.estimatedPoints ? "opacity-60 cursor-default" : ""}`}
-            >
-              {currentTicket.estimatedPoints ? (
-                <>
-                  <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  Envoyé
-                </>
-              ) : sendingToJira ? (
-                <>
-                  <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  Envoi…
-                </>
-              ) : (
-                <div className="flex items-center gap-1.5">
-                  <span>Envoyer vers Jira</span>
-                  <Image src="/jira.svg" width={14} height={14} className="h-3.5 w-3.5" alt="Jira" />
-                </div>
-              )}
-            </button>
+            <div className="mt-2">
+              <button
+                onClick={() => !sendingToJira && onSendToJira(room.finalScore!)}
+                disabled={sendingToJira || !!currentTicket.estimatedPoints}
+                className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${theme.accent} ${sendingToJira || currentTicket.estimatedPoints ? "opacity-60 cursor-default" : ""}`}
+              >
+                {currentTicket.estimatedPoints ? (
+                  <>
+                    <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Envoyé
+                  </>
+                ) : sendingToJira ? (
+                  <>
+                    <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    Envoi…
+                  </>
+                ) : (
+                  <>
+                    Envoyer vers Jira
+                    <Image src="/jira.svg" width={14} height={14} className="h-3.5 w-3.5" alt="Jira" />
+                  </>
+                )}
+              </button>
+            </div>
           )}
         </div>
       )}
 
       {/* Actions */}
       {isHost && (
-        <div className="flex gap-2 pt-1">
+        <div className="flex gap-2">
           <button
             onClick={onResetVotes}
             className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${theme.secondaryBtn}`}
