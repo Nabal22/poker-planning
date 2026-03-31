@@ -206,7 +206,7 @@ function RoomViewInner({ roomId, playerName, savedPlayerId, onChangeTheme }: Pro
                 className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all ${theme.headerBtn}`}
               >
                 <img src="/jira.svg" className="h-4 w-4" alt="Jira" />
-                {room.tickets.length > 0 ? `${room.tickets.length} tickets` : "Charger Jira"}
+                Charger Jira
               </button>
             )}
             <button

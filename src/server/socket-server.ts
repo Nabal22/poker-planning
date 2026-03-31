@@ -75,12 +75,14 @@ export function initSocketServer(httpServer: HttpServer) {
     socket.on("next-ticket", ({ roomId }) => {
       const room = rm.nextTicket(roomId);
       if (!room) return;
+      io!.to(roomId).emit("votes-reset");
       io!.to(roomId).emit("room-state", room);
     });
 
     socket.on("select-ticket", ({ roomId, ticketIdx }) => {
       const room = rm.selectTicket(roomId, ticketIdx);
       if (!room) return;
+      io!.to(roomId).emit("votes-reset");
       io!.to(roomId).emit("room-state", room);
     });
 
