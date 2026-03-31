@@ -117,8 +117,30 @@ function RoomViewInner({ roomId, playerName, savedPlayerId, onChangeTheme }: Pro
     socket.emit("vote", { roomId, playerId: currentPlayerId, value });
   }, [socket, room, roomId, currentPlayerId]);
 
-  const handleReveal = () => socket.emit("reveal", { roomId });
-  const handleReset = () => { setMyVote(null); socket.emit("reset-votes", { roomId }); };
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const countdownRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleReveal = useCallback(() => {
+    if (countdown !== null) return;
+    setCountdown(3);
+    let n = 3;
+    countdownRef.current = setInterval(() => {
+      n -= 1;
+      if (n > 0) {
+        setCountdown(n);
+      } else {
+        clearInterval(countdownRef.current!);
+        countdownRef.current = null;
+        setCountdown(null);
+        socket.emit("reveal", { roomId });
+      }
+    }, 1000);
+  }, [countdown, socket, roomId]);
+  const handleReset = () => {
+    if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; setCountdown(null); }
+    setMyVote(null);
+    socket.emit("reset-votes", { roomId });
+  };
   const handleNextTicket = () => socket.emit("next-ticket", { roomId });
   const handleSelectTicket = (idx: number) => socket.emit("select-ticket", { roomId, ticketIdx: idx });
   const handleSetFinalScore = (score: string) => socket.emit("set-final-score", { roomId, score });
@@ -166,7 +188,7 @@ function RoomViewInner({ roomId, playerName, savedPlayerId, onChangeTheme }: Pro
   };
 
   const copyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText(`${window.location.origin}/room/${roomId}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -237,6 +259,7 @@ function RoomViewInner({ roomId, playerName, savedPlayerId, onChangeTheme }: Pro
             <PokerTable
               room={room}
               currentPlayerId={currentPlayerId}
+              countdown={countdown}
               onKick={handleKick}
               onThrow={handleThrow}
               paperBalls={paperBalls}
@@ -273,7 +296,7 @@ function RoomViewInner({ roomId, playerName, savedPlayerId, onChangeTheme }: Pro
               />
             )}
 
-            {isHost && !room.revealed && (
+            {isHost && !room.revealed && countdown === null && (
               <div className="flex justify-center pb-2">
                 <button
                   onClick={handleReveal}

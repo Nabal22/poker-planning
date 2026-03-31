@@ -1,19 +1,24 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useSyncExternalStore } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { connectSocket } from "@/lib/socket";
 import { useRoomStore } from "@/store/useRoomStore";
 
+const noopSubscribe = () => () => {};
+
 function HomePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setPlayerId, setPlayerName } = useRoomStore();
-  const [name, setName] = useState(() => {
-    if (typeof window === "undefined") return "";
-    return localStorage.getItem("planning-poker-player-name") || "";
-  });
+  const savedName = useSyncExternalStore(
+    noopSubscribe,
+    () => localStorage.getItem("planning-poker-player-name") || "",
+    () => ""
+  );
+  const [editedName, setEditedName] = useState<string | null>(null);
+  const name = editedName ?? savedName;
   const [joinCode, setJoinCode] = useState(() => {
     const room = searchParams.get("room");
     return room ? room.toUpperCase() : "";
@@ -50,7 +55,7 @@ function HomePageInner() {
     const code = joinCode.trim().toUpperCase();
     setPlayerName(name.trim());
     localStorage.setItem("planning-poker-player-name", name.trim());
-    router.push(`/room/${code}?name=${encodeURIComponent(name.trim())}`);
+    router.push(`/room/${code}`);
   }
 
   const nameOk = name.trim().length > 0;
@@ -73,7 +78,7 @@ function HomePageInner() {
             className="w-full rounded-xl bg-gray-800 border border-gray-700 px-4 py-3 text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none transition-colors"
             placeholder="Ex: Alice"
             value={name}
-            onChange={(e) => { setName(e.target.value); setError(""); }}
+            onChange={(e) => { setEditedName(e.target.value); setError(""); }}
             onKeyDown={(e) => e.key === "Enter" && mode === "join" ? handleJoin() : undefined}
           />
         </div>
@@ -152,7 +157,7 @@ function HomePageInner() {
 
 export default function HomePage() {
   return (
-    <Suspense>
+    <Suspense fallback={<div className="min-h-screen bg-gray-950" />}>
       <HomePageInner />
     </Suspense>
   );

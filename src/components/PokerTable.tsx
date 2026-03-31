@@ -14,13 +14,14 @@ interface PaperBallAnim {
 interface Props {
   room: Room;
   currentPlayerId: string;
+  countdown: number | null;
   onKick: (playerId: string) => void;
   onThrow: (toId: string) => void;
   paperBalls: PaperBallAnim[];
   onPaperBallComplete: (id: number) => void;
 }
 
-export function PokerTable({ room, currentPlayerId, onKick, onThrow, paperBalls, onPaperBallComplete }: Props) {
+export function PokerTable({ room, currentPlayerId, countdown, onKick, onThrow, paperBalls, onPaperBallComplete }: Props) {
   const theme = useTheme();
   const { players } = room;
   const isHost = room.host === currentPlayerId;
@@ -51,19 +52,31 @@ export function PokerTable({ room, currentPlayerId, onKick, onThrow, paperBalls,
 
       {/* Table felt */}
       <div className={`relative w-72 h-24 rounded-full flex flex-col items-center justify-center gap-1 ${theme.table.felt}`}>
-        {!room.revealed && total > 0 && (
-          <div className="flex gap-1">
-            {connected.map((p) => (
-              <div
-                key={p.id}
-                className={`h-1.5 w-5 rounded-full transition-colors duration-300 ${p.hasVoted ? theme.table.progressOn : theme.table.progressOff}`}
-              />
-            ))}
-          </div>
+        {countdown !== null ? (
+          <span
+            key={countdown}
+            className="text-5xl font-black tabular-nums animate-[countPop_0.4s_ease-out]"
+            style={{ color: countdown === 1 ? "#ef4444" : countdown === 2 ? "#f59e0b" : "#22c55e" }}
+          >
+            {countdown}
+          </span>
+        ) : (
+          <>
+            {!room.revealed && total > 0 && (
+              <div className="flex gap-1">
+                {connected.map((p) => (
+                  <div
+                    key={p.id}
+                    className={`h-1.5 w-5 rounded-full transition-colors duration-300 ${p.hasVoted ? theme.table.progressOn : theme.table.progressOff}`}
+                  />
+                ))}
+              </div>
+            )}
+            <span className={`text-sm font-medium ${room.revealed ? theme.table.textRevealed : theme.table.text}`}>
+              {room.revealed ? "Votes révélés" : `${voted} / ${total} ont voté`}
+            </span>
+          </>
         )}
-        <span className={`text-sm font-medium ${room.revealed ? theme.table.textRevealed : theme.table.text}`}>
-          {room.revealed ? "Votes révélés" : `${voted} / ${total} ont voté`}
-        </span>
       </div>
 
       {/* Bottom row */}

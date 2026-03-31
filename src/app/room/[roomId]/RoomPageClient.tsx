@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { RoomView } from "@/components/RoomView";
 
 interface Props {
@@ -10,16 +10,11 @@ interface Props {
 
 export default function RoomPageClient({ paramsPromise }: Props) {
   const { roomId } = use(paramsPromise);
-  const searchParams = useSearchParams();
   const router = useRouter();
 
-  const nameFromQuery = searchParams.get("name");
-
   const [playerName] = useState<string | null>(() => {
-    const nameFromStorage = typeof window !== "undefined"
-      ? localStorage.getItem("planning-poker-player-name")
-      : null;
-    return nameFromQuery || nameFromStorage;
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("planning-poker-player-name");
   });
 
   const [savedPlayerId] = useState<string | undefined>(() => {
@@ -30,12 +25,8 @@ export default function RoomPageClient({ paramsPromise }: Props) {
   useEffect(() => {
     if (!playerName) {
       router.replace(`/?room=${roomId}`);
-      return;
     }
-    if (nameFromQuery) {
-      localStorage.setItem("planning-poker-player-name", nameFromQuery);
-    }
-  }, [playerName, roomId, nameFromQuery, router]);
+  }, [playerName, roomId, router]);
 
   if (!playerName) {
     return (

@@ -1,8 +1,7 @@
 "use client";
 
-import { useRef, useEffect, useMemo, useState, useCallback } from "react";
-import type React from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useRef, useEffect, useMemo } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 // ─── Texture ─────────────────────────────────────────────────────────────────
@@ -40,114 +39,16 @@ function makeFaceTexture(label: string): THREE.CanvasTexture {
   return tex;
 }
 
-// ─── Draggable group: handles rotate + inertia + throw detection ──────────────
+// ─── Idle wobble group ───────────────────────────────────────────────────────
 
-function DraggableGroup({
-  children,
-  onFlip,
-  isFlipping,
-  onCursorChange,
-}: {
-  children: React.ReactNode;
-  onFlip: () => void;
-  isFlipping: React.MutableRefObject<boolean>;
-  onCursorChange: (cursor: string) => void;
-}) {
+function IdleGroup({ children }: { children: React.ReactNode }) {
   const groupRef = useRef<THREE.Group>(null);
-  const { gl } = useThree();
-  const onFlipRef = useRef(onFlip);
-  useEffect(() => { onFlipRef.current = onFlip; });
-  const onCursorChangeRef = useRef(onCursorChange);
-  useEffect(() => { onCursorChangeRef.current = onCursorChange; });
-
-  const drag = useRef({
-    active: false,
-    lastX: 0, lastY: 0,
-    lastDx: 0, lastDy: 0,
-    totalMoved: 0,
-    angVelX: 0, angVelY: 0,
-  });
-
-  useEffect(() => {
-    const el = gl.domElement;
-
-    const onDown = (e: PointerEvent) => {
-      drag.current = {
-        ...drag.current,
-        active: true,
-        lastX: e.clientX, lastY: e.clientY,
-        lastDx: 0, lastDy: 0,
-        totalMoved: 0,
-        angVelX: 0, angVelY: 0,
-      };
-      onCursorChangeRef.current("grabbing");
-      el.setPointerCapture(e.pointerId);
-    };
-
-    const onMove = (e: PointerEvent) => {
-      if (!drag.current.active) return;
-      const dx = e.clientX - drag.current.lastX;
-      const dy = e.clientY - drag.current.lastY;
-      drag.current.lastDx = dx;
-      drag.current.lastDy = dy;
-      drag.current.totalMoved += Math.hypot(dx, dy);
-      drag.current.lastX = e.clientX;
-      drag.current.lastY = e.clientY;
-      if (groupRef.current) {
-        groupRef.current.rotation.x += dy * 0.009;
-        groupRef.current.rotation.y += dx * 0.009;
-      }
-    };
-
-    const onUp = () => {
-      if (!drag.current.active) return;
-      drag.current.active = false;
-      onCursorChangeRef.current("grab");
-
-      const speed = Math.hypot(drag.current.lastDx, drag.current.lastDy);
-      const isClick = drag.current.totalMoved < 6;
-
-      if ((isClick || speed > 9) && !isFlipping.current) {
-        onFlipRef.current();
-        drag.current.angVelX = 0;
-        drag.current.angVelY = 0;
-      } else {
-        // Carry drag velocity into inertia
-        drag.current.angVelX = drag.current.lastDy * 0.009;
-        drag.current.angVelY = drag.current.lastDx * 0.009;
-      }
-    };
-
-    el.addEventListener("pointerdown", onDown);
-    el.addEventListener("pointermove", onMove);
-    el.addEventListener("pointerup", onUp);
-    el.addEventListener("pointercancel", onUp);
-    return () => {
-      el.removeEventListener("pointerdown", onDown);
-      el.removeEventListener("pointermove", onMove);
-      el.removeEventListener("pointerup", onUp);
-      el.removeEventListener("pointercancel", onUp);
-    };
-  }, [gl, isFlipping]);
 
   useFrame(({ clock }) => {
-    if (!groupRef.current || drag.current.active) return;
-
-    // Apply inertia with damping
-    groupRef.current.rotation.x += drag.current.angVelX;
-    groupRef.current.rotation.y += drag.current.angVelY;
-    drag.current.angVelX *= 0.89;
-    drag.current.angVelY *= 0.89;
-    if (Math.abs(drag.current.angVelX) < 0.0003) drag.current.angVelX = 0;
-    if (Math.abs(drag.current.angVelY) < 0.0003) drag.current.angVelY = 0;
-
-    // Idle micro-wobble when fully at rest
-    const isResting = drag.current.angVelX === 0 && drag.current.angVelY === 0;
-    if (isResting) {
-      const t = clock.getElapsedTime();
-      groupRef.current.rotation.y += Math.sin(t * 0.55) * 0.0004;
-      groupRef.current.rotation.x += Math.sin(t * 0.4 + 1) * 0.0003;
-    }
+    if (!groupRef.current) return;
+    const t = clock.getElapsedTime();
+    groupRef.current.rotation.y = Math.sin(t * 0.55) * 0.06;
+    groupRef.current.rotation.x = Math.sin(t * 0.4 + 1) * 0.04;
   });
 
   return <group ref={groupRef}>{children}</group>;
@@ -220,29 +121,19 @@ function Coin({
 export function CoinCanvas({
   targetAngle,
   onComplete,
-  onFlip,
-  isFlipping,
 }: {
   targetAngle: number;
   onComplete: () => void;
-  onFlip: () => void;
-  isFlipping: boolean;
 }) {
-  const isFlippingRef = useRef(isFlipping);
-  useEffect(() => { isFlippingRef.current = isFlipping; }, [isFlipping]);
-
-  const [cursor, setCursor] = useState("grab");
-  const handleCursorChange = useCallback((c: string) => setCursor(c), []);
-
   return (
-    <Canvas camera={{ position: [0, 0, 2.8], fov: 44 }} gl={{ antialias: true, alpha: true }} style={{ background: "transparent", cursor }}>
+    <Canvas camera={{ position: [0, 0, 2.8], fov: 44 }} gl={{ antialias: true, alpha: true }} style={{ background: "transparent" }}>
       <directionalLight position={[4, 6, 5]} intensity={2.4} color="#fff6d8" />
       <pointLight position={[-4, 2, 3]} intensity={0.9} color="#c8d8ff" />
       <pointLight position={[1, -4, 2]} intensity={0.5} color="#f0a040" />
       <ambientLight intensity={0.35} />
-      <DraggableGroup onFlip={onFlip} isFlipping={isFlippingRef} onCursorChange={handleCursorChange}>
+      <IdleGroup>
         <Coin targetAngle={targetAngle} onComplete={onComplete} />
-      </DraggableGroup>
+      </IdleGroup>
     </Canvas>
   );
 }

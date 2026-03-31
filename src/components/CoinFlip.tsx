@@ -86,8 +86,6 @@ export function CoinFlip({ roomId, playerName }: Props) {
         <CoinCanvas
           targetAngle={targetAngle}
           onComplete={handleComplete}
-          onFlip={flip}
-          isFlipping={isFlipping}
         />
       </div>
 
