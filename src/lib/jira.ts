@@ -144,7 +144,7 @@ export async function fetchSprints(
   if (backlogIssues.length > 0) {
     result.push({
       id: "backlog",
-      name: `Backlog (${backlogIssues.length} tickets)`,
+      name: `Backlog`,
       jql: `project = ${projectKey} AND sprint is EMPTY AND ${NO_SUBTASKS} ORDER BY rank ASC`,
     });
   }

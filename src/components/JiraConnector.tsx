@@ -50,9 +50,6 @@ export function JiraConnector({ onTicketsLoaded }: Props) {
       ) : (
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-              Sprint / Backlog
-            </label>
             <div className="space-y-2">
               {sprints.map((s) => (
                 <button

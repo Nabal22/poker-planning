@@ -144,10 +144,10 @@ return (
                   Envoi…
                 </>
               ) : (
-                <>
-                  <span className="font-bold text-[11px] opacity-80">J</span>
-                  → Jira
-                </>
+                <div className="flex items-center gap-1.5">
+                  <span>Envoyer vers Jira</span>
+                  <img src="/jira.svg" className="h-3.5 w-3.5" alt="Jira" />
+                </div>
               )}
             </button>
           )}
