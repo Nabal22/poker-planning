@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Poker Planning
 
-## Getting Started
+Application de planning poker en temps réel avec intégration Jira, thèmes et fonctionnalités collaboratives.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** + React 19 — App Router, Server Actions
+- **Socket.IO 4** — temps réel via serveur HTTP custom
+- **Zustand** — état client
+- **Three.js / React Three Fiber** — pièce 3D interactive
+- **Tailwind CSS 4** — UI + système de thèmes
+
+## Fonctionnalités
+
+- Création et rejoindre une room via code court
+- Vote en temps réel, révélation synchronisée
+- Échelles Fibonacci
+- Gestion des tickets : import Jira ou création manuelle
+- Intégration Jira : chargement de sprints, envoi des estimations
+- Résultats : distribution, moyenne, médiane, consensus
+- Tirage de pièce 3D partagé entre tous les participants
+- 6 thèmes visuels
+- Reconnexion automatique sans doublon de joueur
+
+## Installation
+
+```bash
+npm install
+```
+
+## Développement
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Production
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Variables d'environnement
 
-## Learn More
+Créer un fichier `.env.local` :
 
-To learn more about Next.js, take a look at the following resources:
+```env
+# Jira (optionnel)
+JIRA_DOMAIN=votre-domaine.atlassian.net
+JIRA_EMAIL=votre@email.com
+JIRA_API_TOKEN=votre_token_api
+JIRA_PROJECT_KEY=PROJ
+JIRA_STORY_POINTS_FIELD=customfield_10016  # champ par défaut
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Le token API Jira se génère sur [id.atlassian.com/manage-profile/security/api-tokens](https://id.atlassian.com/manage-profile/security/api-tokens).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Architecture
 
-## Deploy on Vercel
+```
+server.ts                  # Serveur HTTP custom (Next.js + Socket.IO)
+src/
+  app/                     # Routes Next.js (App Router)
+  components/              # Composants React
+  lib/
+    room-manager.ts        # État des rooms en mémoire
+    socket.ts              # Client Socket.IO
+    actions/jira.ts        # Server Actions Jira
+    jira.ts                # Couche API Jira pure
+  store/useRoomStore.ts    # Store Zustand
+  server/socket-server.ts  # Handlers Socket.IO côté serveur
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Les rooms sont stockées en mémoire et nettoyées après 2h d'inactivité.
