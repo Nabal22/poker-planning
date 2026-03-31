@@ -143,7 +143,7 @@ function RoomViewInner({ roomId, playerName, savedPlayerId, onChangeTheme }: Pro
         setCountdown(null);
         socket.emit("reveal", { roomId });
       }
-    }, 700);
+    }, 500);
   }, [countdown, socket, roomId]);
   const handleReset = () => {
     if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; setCountdown(null); }

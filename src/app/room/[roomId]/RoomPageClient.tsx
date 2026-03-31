@@ -6,19 +6,14 @@ import { RoomView } from "@/components/RoomView";
 
 interface Props {
   paramsPromise: Promise<{ roomId: string }>;
+  savedName: string | null;
 }
 
 const noopSubscribe = () => () => {};
 
-export default function RoomPageClient({ paramsPromise }: Props) {
+export default function RoomPageClient({ paramsPromise, savedName }: Props) {
   const { roomId } = use(paramsPromise);
   const router = useRouter();
-
-  const playerName = useSyncExternalStore(
-    noopSubscribe,
-    () => localStorage.getItem("planning-poker-player-name"),
-    () => null
-  );
 
   const savedPlayerId = useSyncExternalStore(
     noopSubscribe,
@@ -27,12 +22,12 @@ export default function RoomPageClient({ paramsPromise }: Props) {
   );
 
   useEffect(() => {
-    if (!playerName) {
+    if (!savedName) {
       router.replace(`/?room=${roomId}`);
     }
-  }, [playerName, roomId, router]);
+  }, [savedName, roomId, router]);
 
-  if (!playerName) {
+  if (!savedName) {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center text-gray-400">
         Redirection...
@@ -43,7 +38,7 @@ export default function RoomPageClient({ paramsPromise }: Props) {
   return (
     <RoomView
       roomId={roomId}
-      playerName={playerName}
+      playerName={savedName}
       savedPlayerId={savedPlayerId}
     />
   );

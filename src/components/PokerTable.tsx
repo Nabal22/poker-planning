@@ -55,7 +55,7 @@ export function PokerTable({ room, currentPlayerId, countdown, onKick, onThrow, 
         {countdown !== null ? (
           <span
             key={countdown}
-            className="text-5xl font-black tabular-nums animate-[countPop_0.3s_ease-out]"
+            className="text-5xl font-black tabular-nums animate-[countPop_0.25s_ease-out]"
             style={{ color: countdown === 1 ? "#ef4444" : countdown === 2 ? "#f59e0b" : "#22c55e" }}
           >
             {countdown}
