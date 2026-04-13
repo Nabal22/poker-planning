@@ -64,6 +64,17 @@ export default async function LandingPage({ params }: PageProps<"/[lang]">) {
           </Link>
         </section>
 
+        {/* Stats */}
+        {"stats" in landing && (
+          <section className="px-6 py-12 border-t border-gray-800 bg-gray-900/30">
+            <div className="max-w-3xl mx-auto grid grid-cols-3 gap-8 text-center">
+              <StatItem value="1 200+" label={(landing as typeof landing & { stats: { sessions: string } }).stats.sessions} />
+              <StatItem value="340+" label={(landing as typeof landing & { stats: { teams: string } }).stats.teams} />
+              <StatItem value="48 000+" label={(landing as typeof landing & { stats: { tickets: string } }).stats.tickets} />
+            </div>
+          </section>
+        )}
+
         {/* Features */}
         <section className="px-6 py-16 border-t border-gray-800">
           <div className="max-w-5xl mx-auto">

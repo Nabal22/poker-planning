@@ -34,6 +34,11 @@
       "description": "Estimez vos tickets en temps réel et atteignez le consensus."
     }
   },
+  "stats": {
+    "sessions": "Sessions créées",
+    "teams": "Équipes actives",
+    "tickets": "Tickets estimés"
+  },
   "finalCta": {
     "title": "Prêt à estimer ?",
     "cta": "Démarrer maintenant"
