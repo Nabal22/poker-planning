@@ -1,46 +1,46 @@
 {
-  "hero": {
-    "title": "Estimate your Jira tickets as a team",
-    "subtitle": "Run real-time planning poker sessions — simple, fast, and free.",
-    "cta": "Start a session"
-  },
-  "features": {
-    "title": "Everything you need",
-    "realtime": {
-      "title": "Real-time votes",
-      "description": "All team members vote simultaneously and results appear instantly."
+    "hero": {
+        "title": "Estimate your Jira tickets as a team",
+        "subtitle": "Run real-time planning poker sessions — simple, fast, and free.",
+        "cta": "Start a session"
     },
-    "jira": {
-      "title": "Jira integration",
-      "description": "Import your sprints and Jira tickets directly to estimate without copy-pasting."
+    "features": {
+        "title": "Everything you need",
+        "realtime": {
+            "title": "Real-time votes",
+            "description": "All team members vote simultaneously and results appear instantly."
+        },
+        "jira": {
+            "title": "Jira integration",
+            "description": "Import your sprints and Jira tickets directly to estimate without copy-pasting."
+        },
+        "themes": {
+            "title": "6 themes",
+            "description": "Customize the interface: classic, retro, matrix, doom and more."
+        }
     },
-    "themes": {
-      "title": "6 themes",
-      "description": "Customize the interface: classic, retro, matrix, doom and more."
+    "howItWorks": {
+        "title": "How it works",
+        "step1": {
+            "label": "Create a room",
+            "description": "Generate a unique code in one click."
+        },
+        "step2": {
+            "label": "Share the code",
+            "description": "Send it to your team so they can join."
+        },
+        "step3": {
+            "label": "Vote together",
+            "description": "Estimate your tickets in real time and reach consensus."
+        }
+    },
+    "stats": {
+        "sessions": "Session",
+        "teams": "Teams",
+        "tickets": "test"
+    },
+    "finalCta": {
+        "title": "Ready to estimate?",
+        "cta": "Get started now"
     }
-  },
-  "howItWorks": {
-    "title": "How it works",
-    "step1": {
-      "label": "Create a room",
-      "description": "Generate a unique code in one click."
-    },
-    "step2": {
-      "label": "Share the code",
-      "description": "Send it to your team so they can join."
-    },
-    "step3": {
-      "label": "Vote together",
-      "description": "Estimate your tickets in real time and reach consensus."
-    }
-  },
-  "stats": {
-    "sessions": "",
-    "teams": "",
-    "tickets": ""
-  },
-  "finalCta": {
-    "title": "Ready to estimate?",
-    "cta": "Get started now"
-  }
 }
