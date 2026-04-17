@@ -1,46 +1,46 @@
 {
-  "hero": {
-    "title": "Estimez vos tickets Jira en équipe",
-    "subtitle": "Organisez vos sessions de planning poker en temps réel — simple, rapide et gratuit.",
-    "cta": "Lancer une session"
-  },
-  "features": {
-    "title": "Tout ce dont vous avez besoin",
-    "realtime": {
-      "title": "Votes en temps réel",
-      "description": "Tous les membres votent simultanément et les résultats s'affichent instantanément."
+    "hero": {
+        "title": "Estimez vos tickets Jira en équipe",
+        "subtitle": "Organisez vos sessions de planning poker en temps réel — simple, rapide et gratuit.",
+        "cta": "Lancer une session"
     },
-    "jira": {
-      "title": "Intégration Jira",
-      "description": "Importez directement vos sprints et tickets Jira pour estimer sans copier-coller."
+    "features": {
+        "title": "Tout ce dont vous avez besoin",
+        "realtime": {
+            "title": "Votes en temps réel",
+            "description": "Tous les membres votent simultanément et les résultats s'affichent instantanément."
+        },
+        "jira": {
+            "title": "Intégration Jira",
+            "description": "Importez directement vos sprints et tickets Jira pour estimer sans copier-coller."
+        },
+        "themes": {
+            "title": "6 thèmes",
+            "description": "Personnalisez l'interface : classique, rétro, matrix, doom et plus encore."
+        }
     },
-    "themes": {
-      "title": "6 thèmes",
-      "description": "Personnalisez l'interface : classique, rétro, matrix, doom et plus encore."
+    "howItWorks": {
+        "title": "Comment ça marche",
+        "step1": {
+            "label": "Créez une room",
+            "description": "Générez un code unique en un clic."
+        },
+        "step2": {
+            "label": "Partagez le code",
+            "description": "Envoyez-le à votre équipe pour qu'ils rejoignent."
+        },
+        "step3": {
+            "label": "Votez ensemble",
+            "description": "Estimez vos tickets en temps réel et atteignez le consensus."
+        }
+    },
+    "stats": {
+        "sessions": "Sessions créées",
+        "teams": "Équipes actives",
+        "tickets": "Tickets estimés"
+    },
+    "finalCta": {
+        "title": "Prêt à estimer ?",
+        "cta": "Démarrer maintenant"
     }
-  },
-  "howItWorks": {
-    "title": "Comment ça marche",
-    "step1": {
-      "label": "Créez une room",
-      "description": "Générez un code unique en un clic."
-    },
-    "step2": {
-      "label": "Partagez le code",
-      "description": "Envoyez-le à votre équipe pour qu'ils rejoignent."
-    },
-    "step3": {
-      "label": "Votez ensemble",
-      "description": "Estimez vos tickets en temps réel et atteignez le consensus."
-    }
-  },
-  "stats": {
-    "sessions": "Sessions créées",
-    "teams": "Équipes actives",
-    "tickets": "Tickets estimés"
-  },
-  "finalCta": {
-    "title": "Prêt à estimer ?",
-    "cta": "Démarrer maintenant"
-  }
 }
