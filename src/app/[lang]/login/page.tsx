@@ -1,10 +1,9 @@
 import { Suspense } from "react";
-import type { PageProps } from "next/types";
 import { getDictionary, hasLocale } from "../dictionaries";
 import { notFound } from "next/navigation";
 import { LoginClient } from "./LoginClient";
 
-export default async function LoginPage({ params }: PageProps<"/[lang]/login">) {
+export default async function LoginPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
 

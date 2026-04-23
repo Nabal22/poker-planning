@@ -1,11 +1,10 @@
 import { Suspense } from "react";
 import { cookies } from "next/headers";
-import type { PageProps } from "next/types";
 import { notFound } from "next/navigation";
 import { hasLocale } from "../../dictionaries";
 import RoomPageClient from "./RoomPageClient";
 
-export default async function RoomPage({ params }: PageProps<"/[lang]/room/[roomId]">) {
+export default async function RoomPage({ params }: { params: Promise<{ lang: string; roomId: string }> }) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
 
