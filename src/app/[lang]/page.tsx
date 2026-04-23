@@ -1,9 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { PageProps } from "next/types";
 import { notFound } from "next/navigation";
 import { getDictionary, hasLocale, locales, type Locale } from "./dictionaries";
 
-export default async function LandingPage({ params }: { params: Promise<{ lang: string }> }) {
+export default async function LandingPage({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
 

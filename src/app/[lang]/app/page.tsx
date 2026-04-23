@@ -1,10 +1,11 @@
 import { cookies } from "next/headers";
 import { Suspense } from "react";
+import type { PageProps } from "next/types";
 import { notFound } from "next/navigation";
 import { getDictionary, hasLocale } from "../dictionaries";
 import { HomePageClient } from "./HomePageClient";
 
-export default async function AppPage({ params }: { params: Promise<{ lang: string }> }) {
+export default async function AppPage({ params }: PageProps<"/[lang]/app">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
 
